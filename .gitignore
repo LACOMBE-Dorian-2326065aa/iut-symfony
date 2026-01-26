@@ -1,0 +1,59 @@
+# =========================
+# Node / Frontend
+# =========================
+front-end/node_modules/
+front-end/dist/
+front-end/.vite/
+front-end/npm-debug.log
+front-end/yarn-error.log
+front-end/*.log
+front-end/.env
+front-end/.env.local
+front-end/.env.*.local
+front-end/.tsbuildinfo
+
+# =========================
+# PHP / Backend
+# =========================
+back-end/vendor/
+back-end/var/
+back-end/.env
+back-end/.env.local
+back-end/.env.*.local
+back-end/.env.test
+back-end/.env.dev
+back-end/secrets/
+
+# PHPUnit / test results
+back-end/phpunit.xml
+back-end/phpunit.xml.dist
+back-end/tests/_output/
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+*.log
+
+# =========================
+# IDEs / Editors
+# =========================
+.idea/
+*.iml
+.vscode/
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Optional
+# =========================
+*.bak
+*.swp
+*.tmp
+
+*/.idea
+*/.editorconfig

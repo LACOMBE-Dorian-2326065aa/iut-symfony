@@ -19,6 +19,7 @@
         "symfony/monolog-bundle": "^4.0",
         "symfony/runtime": "7.4.*",
         "symfony/security-bundle": "7.4.*",
+        "symfony/stimulus-bundle": "^2.32",
         "symfony/translation": "^7.4",
         "symfony/twig-bundle": "7.4.*",
         "symfony/validator": "7.4.*",

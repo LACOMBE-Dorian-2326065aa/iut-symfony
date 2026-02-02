@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Courses from './pages/Courses.tsx';
 import CourseDetail from './pages/CourseDetail.tsx';
+import Results from './pages/Results.tsx';
 import { useAuth, AuthProvider } from './context/AuthContext';
 import type { ReactNode } from 'react';
 
@@ -26,6 +27,9 @@ function App() {
                         } />
                         <Route path="/courses/:id" element={
                             <PrivateRoute><CourseDetail /></PrivateRoute>
+                        } />
+                         <Route path="/my-results" element={
+                            <PrivateRoute><Results /></PrivateRoute>
                         } />
                         <Route path="*" element={<Navigate to="/courses" />} />
                     </Routes>

@@ -17,7 +17,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        if (token) {
+        const userData = localStorage.getItem('user_data');
+        
+        if (token && userData) {
+            setUser(JSON.parse(userData));
+        } else if (token) {
             setUser({ token, email: '', roles: [] }); 
         }
         setLoading(false);
@@ -25,11 +29,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (email: string, password: string): Promise<boolean> => {
         try {
-            const response = await api.post<{ token: string }>('/api/login', { email, password });
-            const { token } = response.data;
+            const response = await api.post('/api/login', { email, password });
+            const data = response.data;
             
+            const token = data.token || 'mock-token-' + Date.now();
+            
+            const userObj = {
+                ...data.user,
+                token,
+                roles: []
+            };
+
             localStorage.setItem('token', token);
-            setUser({ email, roles: [], token });
+            localStorage.setItem('user_data', JSON.stringify(userObj));
+            
+            setUser(userObj);
             return true;
         } catch (error) {
             console.error("Erreur Auth", error);
@@ -39,6 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('user_data');
         setUser(null);
     };
 

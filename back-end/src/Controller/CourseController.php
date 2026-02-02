@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Output\Course\CourseOutput;
+use App\Output\Course\DetailedCourseOutput;
 use App\Output\ListOutput;
 use App\Repository\CourseRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,6 +27,20 @@ final class CourseController extends AbstractController
 
         return $this->json(
             new ListOutput($courses, CourseOutput::class)
+        );
+    }
+
+    #[Route('/{id}', name: 'course_detail')]
+    public function getCourseDetail(int $id): Response
+    {
+        $course = $this->courseRepository->find($id);
+
+        if (!$course) {
+            return $this->json(['error' => 'Course not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json(
+            new DetailedCourseOutput($course)
         );
     }
 }

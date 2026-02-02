@@ -33,10 +33,17 @@ class Course
     #[ORM\OneToMany(targetEntity: Quizz::class, mappedBy: 'course')]
     private Collection $quizzs;
 
+    /**
+     * @var Collection<int, Video>
+     */
+    #[ORM\OneToMany(targetEntity: Video::class, mappedBy: 'course')]
+    private Collection $videos;
+
     public function __construct()
     {
         $this->documents = new ArrayCollection();
         $this->quizzs = new ArrayCollection();
+        $this->videos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -122,6 +129,36 @@ class Course
             // set the owning side to null (unless already changed)
             if ($quizz->getCourse() === $this) {
                 $quizz->setCourse(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Video>
+     */
+    public function getVideos(): Collection
+    {
+        return $this->videos;
+    }
+
+    public function addVideo(Video $vIdeo): static
+    {
+        if (!$this->videos->contains($vIdeo)) {
+            $this->videos->add($vIdeo);
+            $vIdeo->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVideo(Video $vIdeo): static
+    {
+        if ($this->videos->removeElement($vIdeo)) {
+            // set the owning side to null (unless already changed)
+            if ($vIdeo->getCourse() === $this) {
+                $vIdeo->setCourse(null);
             }
         }
 

@@ -2,39 +2,39 @@
 
 namespace App\Repository;
 
-use App\Entity\Student;
+use App\Entity\Video;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Student>
+ * @extends ServiceEntityRepository<Video>
  */
-class StudentRepository extends ServiceEntityRepository
+class VideoRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Student::class);
+        parent::__construct($registry, Video::class);
     }
 
     //    /**
-    //     * @return Student[] Returns an array of Student objects
+    //     * @return Video[] Returns an array of Video objects
     //     */
     //    public function findByExampleField($value): array
     //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
+    //        return $this->createQueryBuilder('v')
+    //            ->andWhere('v.exampleField = :val')
     //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
+    //            ->orderBy('v.id', 'ASC')
     //            ->setMaxResults(10)
     //            ->getQuery()
     //            ->getResult()
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Student
+    //    public function findOneBySomeField($value): ?Video
     //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
+    //        return $this->createQueryBuilder('v')
+    //            ->andWhere('v.exampleField = :val')
     //            ->setParameter('val', $value)
     //            ->getQuery()
     //            ->getOneOrNullResult()

@@ -1,0 +1,12 @@
+api_platform:
+  title: 'Mon API Symfony'
+  version: '1.0.0'
+  mapping:
+    paths: ['%kernel.project_dir%/src/Entity']
+  patch_formats:
+    jsonp: ['application/merge-patch+json']
+  formats:
+    jsonld: ['application/ld+json']
+    jsonapi: ['application/vnd.api+json']
+    json: ['application/json']
+    html: ['text/html']

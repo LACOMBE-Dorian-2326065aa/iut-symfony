@@ -71,6 +71,8 @@ final class DocumentController extends AbstractController
             ->setPath($fileName . '.pdf')
             ->setNumberOfPages($numberOfPages);
 
-        return $this->json(['message' => 'Document upload endpoint']);
+        $this->documentRepository->save($newDocument, true);
+
+        return $this->json(['message' => 'Document uploaded']);
     }
 }

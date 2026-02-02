@@ -25,6 +25,9 @@ class Document
     #[ORM\ManyToOne(inversedBy: 'documents')]
     private ?Course $course = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $path = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -74,6 +77,18 @@ class Document
     public function setCourse(?Course $course): static
     {
         $this->course = $course;
+
+        return $this;
+    }
+
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    public function setPath(?string $path): static
+    {
+        $this->path = $path;
 
         return $this;
     }

@@ -49,3 +49,19 @@ export interface Document {
     user: PublicUser;
     path: string;
 }
+
+export interface Quizz {
+    id: number;
+    name: string;
+    course: Course;
+}
+
+export interface QuizzAttempt {
+    id: number;
+    quizz: Quizz;
+    user: PublicUser;
+    note: number;
+    date: {
+        date: string;
+    };
+}

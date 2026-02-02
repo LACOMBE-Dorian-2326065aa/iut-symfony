@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Course;
+use App\Entity\Video;
 use App\Output\ListOutput;
 use App\Output\Video\VideoOutput;
 use App\Repository\VideoRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -27,5 +30,42 @@ final class VideoController extends AbstractController
         return $this->json(
             new ListOutput($videos, VideoOutput::class)
         );
+    }
+
+    #[Route('/upload/{course}/{videoName}', name: 'video_upload', methods: ['POST'])]
+    public function uploadVideo(
+        Course $course,
+        string $videoName,
+        Request $request
+    ): Response
+    {
+        $video = $request->files->get('video');
+
+        if (!$video) {
+            return $this->json(
+                ['error' => 'No video file provided'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $uploadDir = $this->getParameter('upload_dir') . '/' . $course->getId();
+
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $filename = $videoName . '.mp4';
+
+        $video->move($uploadDir, $filename);
+
+        $newVideo = new Video();
+        $newVideo->setName($videoName)
+            ->setPath($filename . '.mp4')
+            ->setCourse($course)
+            ->setDuration(15);
+
+        $this->videoRepository->save($newVideo, true);
+
+        return $this->json(['message' => 'Video uploaded'], Response::HTTP_NOT_IMPLEMENTED);
     }
 }

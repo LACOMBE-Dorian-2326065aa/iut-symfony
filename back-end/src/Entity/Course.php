@@ -27,9 +27,16 @@ class Course
     #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'course')]
     private Collection $documents;
 
+    /**
+     * @var Collection<int, Quizz>
+     */
+    #[ORM\OneToMany(targetEntity: Quizz::class, mappedBy: 'course')]
+    private Collection $quizzs;
+
     public function __construct()
     {
         $this->documents = new ArrayCollection();
+        $this->quizzs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -85,6 +92,36 @@ class Course
             // set the owning side to null (unless already changed)
             if ($document->getCourse() === $this) {
                 $document->setCourse(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Quizz>
+     */
+    public function getQuizzs(): Collection
+    {
+        return $this->quizzs;
+    }
+
+    public function addQuizz(Quizz $quizz): static
+    {
+        if (!$this->quizzs->contains($quizz)) {
+            $this->quizzs->add($quizz);
+            $quizz->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeQuizz(Quizz $quizz): static
+    {
+        if ($this->quizzs->removeElement($quizz)) {
+            // set the owning side to null (unless already changed)
+            if ($quizz->getCourse() === $this) {
+                $quizz->setCourse(null);
             }
         }
 

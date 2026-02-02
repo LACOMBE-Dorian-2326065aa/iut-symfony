@@ -16,6 +16,7 @@ class DocumentOutput
     public string $name;
     public UserOutput $user;
     public int $numberOfPages;
+    public ?string $path;
 
     public function __construct(Document $document)
     {
@@ -23,6 +24,7 @@ class DocumentOutput
         $this->name = $document->getName();
         $this->user = new UserOutput($document->getUser());
         $this->numberOfPages = $document->getNumberOfPages();
+        $this->path = $document->getPath();
     }
 
     public function build()

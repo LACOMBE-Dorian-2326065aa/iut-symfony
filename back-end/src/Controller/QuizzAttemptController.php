@@ -5,8 +5,10 @@ namespace App\Controller;
 use ApiPlatform\Metadata\ApiResource;
 use App\Output\ListOutput;
 use App\Output\QuizzAttempt\QuizzAttemptOutput;
+use App\Repository\QuestionRepository;
 use App\Repository\QuizzAttemptRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -28,17 +30,5 @@ final class QuizzAttemptController extends AbstractController
         return $this->json(
             new ListOutput($quizzAttempts, QuizzAttemptOutput::class)
         );
-    }
-
-    #[Route('/complete', name: 'quizz_attempt_complete_list')]
-    public function getAllCompleteQuizzAttempts(): Response
-    {
-//        $quizzAttempts = $this->quizzAttemptRepository->findBy(['isComplete' => true]);
-//
-//        return $this->json(
-//            new ListOutput($quizzAttempts, QuizzAttemptOutput::class)
-//        );
-
-        return $this->json([]);
     }
 }

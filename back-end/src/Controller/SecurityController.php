@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\User;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,6 +59,49 @@ class SecurityController extends AbstractController
 
         return new JsonResponse([
             'message' => 'Login successful',
+            'user' => [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'roles' => $user->getRoles(),
+            ],
+        ]);
+    }
+
+    // route pour s'inscrire
+    #[Route(path: '/api/register', name: 'register_user', methods: ['POST'])]
+    public function apiRegister(
+        Request $request,
+        UserRepository $userRepository
+    ): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $email = $data['email'] ?? null;
+        $password = $data['password'] ?? null;
+        $firstName = $data['firstname'] ?? null;
+        $lastName = $data['lastname'] ?? null;
+        $role = $data['role'] ?? 'ROLE_USER';
+
+        if (!$email || !$password || !$firstName || !$lastName) {
+            return new JsonResponse(['error' => 'All fields are required'], 400);
+        }
+
+        $existingUser = $this->userProvider->loadUserByIdentifier($email);
+
+        if ($existingUser) {
+            return new JsonResponse(['error' => 'Email already in use'], 409);
+        }
+
+        $user = new User();
+        $user->setFirstname($firstName)
+            ->setLastname($lastName)
+            ->setEmail($email)
+            ->setPassword($this->passwordHasher->hashPassword($user, $password))
+            ->setRoles([$role]);
+
+        $userRepository->save($user, true);
+
+        return new JsonResponse([
+            'message' => 'Registration successful',
             'user' => [
                 'id' => $user->getId(),
                 'email' => $user->getEmail(),

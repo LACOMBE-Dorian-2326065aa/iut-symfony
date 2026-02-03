@@ -55,7 +55,7 @@ final class QuizzController extends AbstractController
             $question->setTitle($questionData['title'])
                 ->setCorrectAnswer($questionData['correctAnswer'])
                 ->setQuizz($quizz);
-            $questionRepository->save($question);
+            $questionRepository->save($question, true);
         }
 
         return $this->json(

@@ -19,11 +19,11 @@ const Register = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await api.post('/api/users', {
+            await api.post('/api/register', {
                 email,
                 password,
                 firstname,
-                name: lastname,
+                lastname,
                 roles: role === 'professor' ? ['ROLE_TEACHER'] : ['ROLE_STUDENT']
             });
             navigate('/login');

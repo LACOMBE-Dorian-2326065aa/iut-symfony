@@ -24,7 +24,6 @@ export default function AiQuizModal({ document, courseId, courseName, isOpen, on
     const [error, setError] = useState<string | null>(null);
     const [quizData, setQuizData] = useState<QuizData | null>(null);
     const [questionCount, setQuestionCount] = useState(5);
-    const [answersPerQuestion, setAnswersPerQuestion] = useState(4);
     const [copied, setCopied] = useState(false);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -39,7 +38,6 @@ export default function AiQuizModal({ document, courseId, courseName, isOpen, on
             const res = await api.post(`/api/ai/document-quiz/${document.id}`, {
                 title: `QCM - ${courseName}`,
                 question_count: questionCount,
-                answers_per_question: answersPerQuestion
             });
             const data = res.data?.data as QuizData | null;
             if (data) {
@@ -128,24 +126,6 @@ export default function AiQuizModal({ document, courseId, courseName, isOpen, on
                                     <div className="flex justify-between text-xs text-gray-500 mt-1">
                                         <span>1</span>
                                         <span>20</span>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Réponses par question: {answersPerQuestion}
-                                    </label>
-                                    <input
-                                        type="range"
-                                        min="2"
-                                        max="6"
-                                        value={answersPerQuestion}
-                                        onChange={(e) => setAnswersPerQuestion(parseInt(e.target.value))}
-                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                    />
-                                    <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                        <span>2</span>
-                                        <span>6</span>
                                     </div>
                                 </div>
                             </div>

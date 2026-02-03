@@ -33,6 +33,7 @@ export interface Video {
     name: string;
     duration: number;
     path: string;
+    courseId?: number;
 }
 
 export interface PublicUser {

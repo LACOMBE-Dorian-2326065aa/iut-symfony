@@ -53,7 +53,7 @@ const VideoCard = ({ video }: { video: Video }) => (
                 </div>
 
                 <a 
-                    href={video.path} 
+                    href={`http://localhost:8000/uploads/${video.courseId}/${video.path}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block w-full text-center py-2.5 px-4 bg-gray-50 hover:bg-red-600 text-gray-700 hover:text-white rounded-lg font-medium transition-all duration-200"

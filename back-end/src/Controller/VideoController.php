@@ -38,8 +38,7 @@ final class VideoController extends AbstractController
         Course $course,
         string $videoName,
         Request $request
-    ): Response
-    {
+    ): Response {
         $video = $request->files->get('video');
 
         if (!$video) {
@@ -61,7 +60,7 @@ final class VideoController extends AbstractController
 
         $newVideo = new Video();
         $newVideo->setName($videoName)
-            ->setPath($filename . '.mp4')
+            ->setPath($filename)
             ->setCourse($course)
             ->setDuration(15);
 

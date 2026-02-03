@@ -35,7 +35,7 @@ const VideoCard = ({ video, isTeacher, onDelete }: { video: Video; isTeacher: bo
                 {isTeacher && (
                     <button 
                         onClick={() => onDelete(video.id)}
-                        className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-red-600 text-white hover:bg-white hover:text-red-600 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md"
                     >
                         <Trash2 size={16} /> Supprimer
                     </button>
@@ -87,7 +87,7 @@ const DocumentCard = ({ document, isTeacher, onDelete }: { document: Document; i
                 {isTeacher && (
                     <button 
                         onClick={() => onDelete(document.id)}
-                        className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-red-600 text-white hover:bg-white hover:text-red-600 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md"
                     >
                         <Trash2 size={16} /> Supprimer
                     </button>
@@ -190,7 +190,7 @@ const CourseDetail = () => {
     const handleDeleteVideo = async (videoId: number) => {
         if (!confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ?')) return;
         try {
-            await api.delete(`/api/video/${videoId}`);
+            await api.delete(`/api/videos/${videoId}`);
             await fetchCourse();
         } catch (err) {
             console.error(err);
@@ -201,7 +201,7 @@ const CourseDetail = () => {
     const handleDeleteDocument = async (docId: number) => {
         if (!confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) return;
         try {
-            await api.delete(`/api/document/${docId}`);
+            await api.delete(`/api/documents/${docId}`);
             await fetchCourse();
         } catch (err) {
             console.error(err);

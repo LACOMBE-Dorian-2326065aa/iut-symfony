@@ -78,7 +78,7 @@ class SecurityController extends AbstractController
         $password = $data['password'] ?? null;
         $firstName = $data['firstname'] ?? null;
         $lastName = $data['lastname'] ?? null;
-        $role = $data['role'] ?? 'ROLE_USER';
+        $role = $data['role'] ?? 'ROLE_STUDENT';
 
         if (!$email || !$password || !$firstName || !$lastName) {
             return new JsonResponse(['error' => 'All fields are required'], 400);

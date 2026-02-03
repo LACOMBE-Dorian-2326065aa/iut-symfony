@@ -17,6 +17,7 @@ export interface DetailedCourse {
     name: string;
     videos: ApiResponse<Video>;
     documents: ApiResponse<Document>;
+    quizzs: ApiResponse<Quizz>;
 }
 
 export interface HydraResponse<T> {
@@ -51,10 +52,21 @@ export interface Document {
     path: string;
 }
 
+export interface Question {
+    id: number;
+    title: string;
+    correctAnswer: boolean;
+    quizz?: string; 
+}
+
 export interface Quizz {
     id: number;
     name: string;
     course: Course;
+}
+
+export interface DetailedQuizz extends Quizz {
+    questions: ApiResponse<Question>;
 }
 
 export interface QuizzAttempt {

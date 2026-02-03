@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import type { DetailedCourse, Video, Document } from '../types';
-import { BookOpen, Video as VideoIcon, FileText, Play, Clock, File, User as UserIcon, Plus, X, Trash2 } from 'lucide-react';
+import { BookOpen, Video as VideoIcon, FileText, Play, Clock, File, User as UserIcon, Sparkles, Plus, X, Trash2 } from 'lucide-react';
+import AiQuizModal from '../components/AiQuizModal';
 
 const VideoCard = ({ video, isTeacher, onDelete }: { video: Video; isTeacher: boolean; onDelete: (id: number) => void }) => (
     <div className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full hover:-translate-y-1">
@@ -45,7 +46,7 @@ const VideoCard = ({ video, isTeacher, onDelete }: { video: Video; isTeacher: bo
     </div>
 );
 
-const DocumentCard = ({ document, isTeacher, onDelete }: { document: Document; isTeacher: boolean; onDelete: (id: number) => void }) => {
+const DocumentCard = ({ document, onGenerateQuiz, isTeacher, onDelete }: { document: Document; onGenerateQuiz: (document: Document) => void; isTeacher: boolean; onDelete: (id: number) => void }) => {
     const { id: courseId } = useParams<{ id: string }>();
     
     return (
@@ -83,6 +84,16 @@ const DocumentCard = ({ document, isTeacher, onDelete }: { document: Document; i
                 >
                     Télécharger
                 </a>
+                {onGenerateQuiz && (
+                    <button
+                        type="button"
+                        onClick={() => onGenerateQuiz(document)}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white rounded-lg font-medium transition-all duration-200 border border-indigo-200 hover:border-indigo-600"
+                    >
+                        <Sparkles size={18} />
+                        Générer un QCM
+                    </button>
+                )}
 
                 {isTeacher && (
                     <button 
@@ -103,6 +114,8 @@ const CourseDetail = () => {
     const { user } = useAuth();
     const [course, setCourse] = useState<DetailedCourse | null>(null);
     const [loading, setLoading] = useState(true);
+    const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
     const [showVideoForm, setShowVideoForm] = useState(false);
@@ -218,6 +231,16 @@ const CourseDetail = () => {
     }
 
     if (!course) return <div className="p-4 text-center">Cours introuvable</div>;
+
+    const handleGenerateQuiz = (document: Document) => {
+        setSelectedDocument(document);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedDocument(null);
+    };
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
@@ -359,7 +382,7 @@ const CourseDetail = () => {
                         {course.documents.items.map((doc) => (
                             <DocumentCard 
                                 key={doc.id} 
-                                document={doc} 
+                                document={doc} onGenerateQuiz={handleGenerateQuiz} 
                                 isTeacher={isTeacher || false}
                                 onDelete={handleDeleteDocument}
                             />
@@ -371,13 +394,25 @@ const CourseDetail = () => {
             </section>
 
              <div className="flex justify-center pt-6 border-t">
-                <Link 
-                    to={`/quiz/${course.id}`} 
-                    className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-blue-700 shadow-lg transform hover:scale-105 transition flex items-center gap-2"
-                >
-                    Passer le QCM
-                </Link>
+                {course.quizzs.items.length > 0 && (
+                    <Link 
+                        to={`/quiz/${course.quizzs.items[0].id}`} 
+                        className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-blue-700 shadow-lg transform hover:scale-105 transition flex items-center gap-2"
+                    >
+                        Passer le QCM
+                    </Link>
+                )}
             </div>
+
+            {selectedDocument && (
+                <AiQuizModal 
+                    document={selectedDocument}
+                    courseId={course.id}
+                    courseName={course.name}
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                />
+            )}
         </div>
     );
 };

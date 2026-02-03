@@ -29,4 +29,16 @@ final class QuizzAttemptController extends AbstractController
             new ListOutput($quizzAttempts, QuizzAttemptOutput::class)
         );
     }
+
+    #[Route('/complete', name: 'quizz_attempt_complete_list')]
+    public function getAllCompleteQuizzAttempts(): Response
+    {
+//        $quizzAttempts = $this->quizzAttemptRepository->findBy(['isComplete' => true]);
+//
+//        return $this->json(
+//            new ListOutput($quizzAttempts, QuizzAttemptOutput::class)
+//        );
+
+        return $this->json([]);
+    }
 }

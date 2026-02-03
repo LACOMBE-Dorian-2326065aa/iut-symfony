@@ -8,6 +8,7 @@ use App\Output\Document\DocumentOutput;
 use App\Output\ListOutput;
 use App\Repository\CourseRepository;
 use App\Repository\DocumentRepository;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,7 +35,11 @@ final class DocumentController extends AbstractController
     }
 
     #[Route('/upload', name: 'document_detail', methods: ['POST'])]
-    public function uploadDocument(Request $request, CourseRepository $courseRepository): Response
+    public function uploadDocument(
+        Request $request,
+        CourseRepository $courseRepository,
+        UserRepository $userRepository
+    ): Response
     {
         $content = $request->getContent();
         $data = json_decode($content, true);
@@ -44,11 +49,17 @@ final class DocumentController extends AbstractController
 
         $fileName = $data['name'];
         $courseId = $data['courseId'];
+        $userId = $data['userId'];
         $numberOfPages = $data['numberOfPages'];
 
         $course = $courseRepository->find($courseId);
         if (!$course) {
             return $this->json(['error' => 'Course not found'], 404);
+        }
+
+        $user = $userRepository->find($userId);
+        if (!$user) {
+            return $this->json(['error' => 'User not found'], 404);
         }
 
         if (!$file) {
@@ -70,7 +81,8 @@ final class DocumentController extends AbstractController
         $newDocument->setName($fileName)
             ->setCourse($course)
             ->setPath($fileName . '.pdf')
-            ->setNumberOfPages($numberOfPages);
+            ->setNumberOfPages($numberOfPages)
+            ->setUser($user);
 
         $this->documentRepository->save($newDocument, true);
 

@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/quizz-attempt')]
-#[ApiResource]
 final class QuizzAttemptController extends AbstractController
 {
     private QuizzAttemptRepository $quizzAttemptRepository;

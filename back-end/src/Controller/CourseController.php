@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('api/course')]
-#[ApiResource]
 final class CourseController extends AbstractController
 {
     private CourseRepository $courseRepository;

@@ -14,12 +14,15 @@ class UserOutput
 
     public ?string $lastname;
 
+    public array $roles;
+
     public function __construct(User $user)
     {
         $this->id = $user->getId();
         $this->email = $user->getEmail();
         $this->firstname = $user->getFirstname();
         $this->lastname = $user->getLastname();
+        $this->roles = $user->getRoles();
     }
 
     public function build()

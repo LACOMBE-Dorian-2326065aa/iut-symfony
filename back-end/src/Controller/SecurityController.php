@@ -12,7 +12,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-#[ApiResource]
 class SecurityController extends AbstractController
 {
     private $userProvider;
@@ -39,7 +38,7 @@ class SecurityController extends AbstractController
         return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
 
-    #[Route(path: '/api/login', name: 'login_user')]
+    #[Route(path: '/api/login', name: 'login_user', methods: ['POST'])]
     public function apiLogin(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -61,6 +60,7 @@ class SecurityController extends AbstractController
             'user' => [
                 'id' => $user->getId(),
                 'email' => $user->getEmail(),
+                'roles' => $user->getRoles(),
             ],
         ]);
     }

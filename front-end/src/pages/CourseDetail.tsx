@@ -371,12 +371,14 @@ const CourseDetail = () => {
             </section>
 
              <div className="flex justify-center pt-6 border-t">
-                <Link 
-                    to={`/quiz/${course.id}`} 
-                    className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-blue-700 shadow-lg transform hover:scale-105 transition flex items-center gap-2"
-                >
-                    Passer le QCM
-                </Link>
+                {course.quizzs.items.length > 0 && (
+                    <Link 
+                        to={`/quiz/${course.quizzs.items[0].id}`} 
+                        className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-blue-700 shadow-lg transform hover:scale-105 transition flex items-center gap-2"
+                    >
+                        Passer le QCM
+                    </Link>
+                )}
             </div>
         </div>
     );

@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Courses from './pages/Courses.tsx';
 import CourseDetail from './pages/CourseDetail.tsx';
+import QuizDetail from './pages/QuizDetail.tsx';
 import Results from './pages/Results.tsx';
 import { useAuth, AuthProvider } from './context/AuthContext';
 import type { ReactNode } from 'react';
@@ -29,6 +30,9 @@ function App() {
                         } />
                         <Route path="/courses/:id" element={
                             <PrivateRoute><CourseDetail /></PrivateRoute>
+                        } />
+                        <Route path="/quiz/:id" element={
+                            <PrivateRoute><QuizDetail /></PrivateRoute>
                         } />
                          <Route path="/my-results" element={
                             <PrivateRoute><Results /></PrivateRoute>

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Document;
 use App\Output\Document\DocumentOutput;
 use App\Output\ListOutput;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/document')]
+#[ApiResource]
 final class DocumentController extends AbstractController
 {
     private DocumentRepository $documentRepository;

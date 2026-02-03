@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Output\ListOutput;
 use App\Output\QuizzAttempt\QuizzAttemptOutput;
 use App\Repository\QuizzAttemptRepository;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/quizz-attempt')]
+#[ApiResource]
 final class QuizzAttemptController extends AbstractController
 {
     private QuizzAttemptRepository $quizzAttemptRepository;

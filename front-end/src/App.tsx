@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Courses from './pages/Courses.tsx';
 import CourseDetail from './pages/CourseDetail.tsx';
 import Results from './pages/Results.tsx';
@@ -21,6 +22,7 @@ function App() {
                 <main className="container mx-auto p-4 md:p-8">
                     <Routes>
                         <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
                         
                         <Route path="/courses" element={
                             <PrivateRoute><Courses /></PrivateRoute>

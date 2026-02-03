@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 import type { DetailedCourse, Video, Document } from '../types';
-import { BookOpen, Video as VideoIcon, FileText, Play, Clock, File, User as UserIcon } from 'lucide-react';
+import { BookOpen, Video as VideoIcon, FileText, Play, Clock, File, User as UserIcon, Plus, X, Trash2 } from 'lucide-react';
 
-const VideoCard = ({ video }: { video: Video }) => (
+const VideoCard = ({ video, isTeacher, onDelete }: { video: Video; isTeacher: boolean; onDelete: (id: number) => void }) => (
     <div className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full hover:-translate-y-1">
         <div className="h-32 bg-gradient-to-r from-red-500 to-rose-600 relative overflow-hidden">
              <div className="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors"></div>
@@ -30,12 +31,21 @@ const VideoCard = ({ video }: { video: Video }) => (
                 >
                     Regarder la vidéo
                 </a>
+                
+                {isTeacher && (
+                    <button 
+                        onClick={() => onDelete(video.id)}
+                        className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
+                    >
+                        <Trash2 size={16} /> Supprimer
+                    </button>
+                )}
             </div>
         </div>
     </div>
 );
 
-const DocumentCard = ({ document }: { document: Document }) => {
+const DocumentCard = ({ document, isTeacher, onDelete }: { document: Document; isTeacher: boolean; onDelete: (id: number) => void }) => {
     const { id: courseId } = useParams<{ id: string }>();
     
     return (
@@ -73,6 +83,15 @@ const DocumentCard = ({ document }: { document: Document }) => {
                 >
                     Télécharger
                 </a>
+
+                {isTeacher && (
+                    <button 
+                        onClick={() => onDelete(document.id)}
+                        className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
+                    >
+                        <Trash2 size={16} /> Supprimer
+                    </button>
+                )}
             </div>
         </div>
     </div>
@@ -81,25 +100,114 @@ const DocumentCard = ({ document }: { document: Document }) => {
 
 const CourseDetail = () => {
     const { id } = useParams<{ id: string }>(); 
+    const { user } = useAuth();
     const [course, setCourse] = useState<DetailedCourse | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const [showVideoForm, setShowVideoForm] = useState(false);
+    const [videoName, setVideoName] = useState('');
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+
+    const [showDocForm, setShowDocForm] = useState(false);
+    const [docName, setDocName] = useState('');
+    const [docPages, setDocPages] = useState('');
+    const [docFile, setDocFile] = useState<File | null>(null);
+
+    const isTeacher = user?.roles.includes('role_teacher') || user?.roles.includes('ROLE_TEACHER');
+
+    const fetchCourse = async () => {
+        if (!id) return;
+        try {
+           const res = await api.get<DetailedCourse>(`/api/course/${id}`);
+           setCourse(res.data);
+       } catch (err) {
+           console.error(err);
+       } finally {
+           setLoading(false);
+       }
+   };
 
     useEffect(() => {
-        if (!id) return;
-        
-        const fetchCourse = async () => {
-             try {
-                const res = await api.get<DetailedCourse>(`/api/course/${id}`);
-                setCourse(res.data);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchCourse();
     }, [id]);
+
+    const handleVideoUpload = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!videoFile || !videoName || !course) return;
+        setIsUploading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('video', videoFile);
+            
+            await api.post(`/api/video/upload/${course.id}/${videoName}`, formData, {
+                 headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setShowVideoForm(false);
+            setVideoName('');
+            setVideoFile(null);
+            await fetchCourse();
+        } catch (err) {
+            console.error(err);
+            alert('Erreur lors de l\'upload');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleDocUpload = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!docFile || !docName || !docPages || !course) return;
+        setIsUploading(true);
+        
+        try {
+            const reader = new FileReader();
+            reader.readAsDataURL(docFile);
+            reader.onload = async () => {
+                const base64File = reader.result?.toString().split(',')[1];
+                await api.post('/api/document/upload', {
+                   file: base64File,
+                   name: docName,
+                   courseId: course.id,
+                   numberOfPages: parseInt(docPages),
+                   userId: user?.id 
+                });
+                setShowDocForm(false);
+                setDocName('');
+                setDocPages('');
+                setDocFile(null);
+                await fetchCourse();
+                setIsUploading(false);
+            };
+        } catch (err) {
+            console.error(err);
+            setIsUploading(false);
+            alert('Erreur lors de l\'upload');
+        } 
+    };
+
+    const handleDeleteVideo = async (videoId: number) => {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ?')) return;
+        try {
+            await api.delete(`/api/video/${videoId}`);
+            await fetchCourse();
+        } catch (err) {
+            console.error(err);
+            alert('Erreur lors de la suppression');
+        }
+    };
+
+    const handleDeleteDocument = async (docId: number) => {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) return;
+        try {
+            await api.delete(`/api/document/${docId}`);
+            await fetchCourse();
+        } catch (err) {
+            console.error(err);
+            alert('Erreur lors de la suppression');
+        }
+    };
 
     if (loading) {
         return (
@@ -125,6 +233,100 @@ const CourseDetail = () => {
                     </span>
                 </div>
             </div>
+
+            {isTeacher && (
+                <div className="space-y-6">
+                    <div className="flex justify-center gap-4">
+                        <button 
+                            onClick={() => { setShowVideoForm(!showVideoForm); setShowDocForm(false); }}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                        >
+                            <Plus size={20} /> Ajouter une vidéo
+                        </button>
+                        <button 
+                            onClick={() => { setShowDocForm(!showDocForm); setShowVideoForm(false); }}
+                            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+                        >
+                            <Plus size={20} /> Ajouter un document
+                        </button>
+                    </div>
+
+                    {showVideoForm && (
+                        <form onSubmit={handleVideoUpload} className="bg-gray-50 p-6 rounded-xl border border-gray-200 max-w-2xl mx-auto space-y-4 animate-fade-in-down">
+                            <div className="flex justify-between items-center">
+                                <h3 className="font-bold text-lg text-gray-800">Ajouter une vidéo</h3>
+                                <button type="button" onClick={() => setShowVideoForm(false)} className="text-gray-400 hover:text-red-500"><X size={20}/></button>
+                            </div>
+                            <div className="space-y-3">
+                                <input 
+                                    type="text" 
+                                    placeholder="Nom de la vidéo" 
+                                    value={videoName}
+                                    onChange={e => setVideoName(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                    required
+                                />
+                                <input 
+                                    type="file" 
+                                    accept="video/mp4"
+                                    onChange={e => setVideoFile(e.target.files ? e.target.files[0] : null)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    required
+                                />
+                                <button 
+                                    type="submit" 
+                                    disabled={isUploading}
+                                    className="w-full py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium transition"
+                                >
+                                    {isUploading ? 'Chargement...' : 'Enregistrer la vidéo'}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    {showDocForm && (
+                        <form onSubmit={handleDocUpload} className="bg-gray-50 p-6 rounded-xl border border-gray-200 max-w-2xl mx-auto space-y-4 animate-fade-in-down">
+                             <div className="flex justify-between items-center">
+                                <h3 className="font-bold text-lg text-gray-800">Ajouter un document</h3>
+                                <button type="button" onClick={() => setShowDocForm(false)} className="text-gray-400 hover:text-emerald-500"><X size={20}/></button>
+                            </div>
+                            <div className="space-y-3">
+                                <input 
+                                    type="text" 
+                                    placeholder="Nom du document" 
+                                    value={docName}
+                                    onChange={e => setDocName(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                    required
+                                />
+                                <input 
+                                    type="number" 
+                                    placeholder="Nombre de pages" 
+                                    value={docPages}
+                                    onChange={e => setDocPages(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                    required
+                                    min="1"
+                                />
+                                <input 
+                                    type="file" 
+                                    accept="application/pdf"
+                                    onChange={e => setDocFile(e.target.files ? e.target.files[0] : null)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    required
+                                />
+                                <button 
+                                    type="submit" 
+                                    disabled={isUploading}
+                                    className="w-full py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium transition"
+                                >
+                                    {isUploading ? 'Chargement...' : 'Enregistrer le document'}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            )}
         
             {/* Section Vidéos */}
             <section>
@@ -134,7 +336,12 @@ const CourseDetail = () => {
                 {course.videos.items.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {course.videos.items.map(video => (
-                            <VideoCard key={video.id} video={video} />
+                            <VideoCard 
+                                key={video.id} 
+                                video={video} 
+                                isTeacher={isTeacher || false}
+                                onDelete={handleDeleteVideo}
+                            />
                         ))}
                     </div>
                 ) : (
@@ -150,7 +357,12 @@ const CourseDetail = () => {
                  {course.documents.items.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {course.documents.items.map((doc) => (
-                            <DocumentCard key={doc.id} document={doc} />
+                            <DocumentCard 
+                                key={doc.id} 
+                                document={doc} 
+                                isTeacher={isTeacher || false}
+                                onDelete={handleDeleteDocument}
+                            />
                         ))}
                     </div>
                 ) : (
@@ -161,9 +373,9 @@ const CourseDetail = () => {
              <div className="flex justify-center pt-6 border-t">
                 <Link 
                     to={`/quiz/${course.id}`} 
-                    className="bg-green-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-700 shadow-lg transform hover:scale-105 transition flex items-center gap-2"
+                    className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-blue-700 shadow-lg transform hover:scale-105 transition flex items-center gap-2"
                 >
-                    📝 Passer le QCM
+                    Passer le QCM
                 </Link>
             </div>
         </div>

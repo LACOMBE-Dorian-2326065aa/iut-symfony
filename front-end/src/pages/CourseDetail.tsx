@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import type { DetailedCourse, Video, Document } from '../types';
-import { BookOpen, Video as VideoIcon, FileText, Play, Clock, File, User as UserIcon } from 'lucide-react';
+import { BookOpen, Video as VideoIcon, FileText, Play, Clock, File, User as UserIcon, Sparkles } from 'lucide-react';
+import AiQuizModal from '../components/AiQuizModal';
 
 const VideoCard = ({ video }: { video: Video }) => (
     <div className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full hover:-translate-y-1">
@@ -35,7 +36,7 @@ const VideoCard = ({ video }: { video: Video }) => (
     </div>
 );
 
-const DocumentCard = ({ document }: { document: Document }) => {
+const DocumentCard = ({ document, onGenerateQuiz }: { document: Document; onGenerateQuiz: (document: Document) => void }) => {
     const { id: courseId } = useParams<{ id: string }>();
     
     return (
@@ -73,6 +74,16 @@ const DocumentCard = ({ document }: { document: Document }) => {
                 >
                     Télécharger
                 </a>
+                {onGenerateQuiz && (
+                    <button
+                        type="button"
+                        onClick={() => onGenerateQuiz(document)}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white rounded-lg font-medium transition-all duration-200 border border-indigo-200 hover:border-indigo-600"
+                    >
+                        <Sparkles size={18} />
+                        Générer un QCM
+                    </button>
+                )}
             </div>
         </div>
     </div>
@@ -83,6 +94,8 @@ const CourseDetail = () => {
     const { id } = useParams<{ id: string }>(); 
     const [course, setCourse] = useState<DetailedCourse | null>(null);
     const [loading, setLoading] = useState(true);
+    const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -110,6 +123,16 @@ const CourseDetail = () => {
     }
 
     if (!course) return <div className="p-4 text-center">Cours introuvable</div>;
+
+    const handleGenerateQuiz = (document: Document) => {
+        setSelectedDocument(document);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedDocument(null);
+    };
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
@@ -150,7 +173,7 @@ const CourseDetail = () => {
                  {course.documents.items.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {course.documents.items.map((doc) => (
-                            <DocumentCard key={doc.id} document={doc} />
+                            <DocumentCard key={doc.id} document={doc} onGenerateQuiz={handleGenerateQuiz} />
                         ))}
                     </div>
                 ) : (
@@ -166,6 +189,16 @@ const CourseDetail = () => {
                     📝 Passer le QCM
                 </Link>
             </div>
+
+            {selectedDocument && (
+                <AiQuizModal 
+                    document={selectedDocument}
+                    courseId={course.id}
+                    courseName={course.name}
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                />
+            )}
         </div>
     );
 };

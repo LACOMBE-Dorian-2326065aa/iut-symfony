@@ -10,6 +10,7 @@ class VideoOutput
     public string $name;
     public int $duration;
     public string $path;
+    public ?int $courseId;
 
     public function __construct(Video $video)
     {
@@ -17,6 +18,7 @@ class VideoOutput
         $this->name = $video->getName();
         $this->duration = $video->getDuration();
         $this->path = $video->getPath();
+        $this->courseId = $video->getCourse()?->getId();
     }
 
     public function build()

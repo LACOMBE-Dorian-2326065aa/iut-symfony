@@ -9,3 +9,9 @@
 
 controllers:
     resource: routing.controllers
+
+# config/routes.yaml
+api_platform:
+    resource: .
+    type: api_platform
+    prefix: /api

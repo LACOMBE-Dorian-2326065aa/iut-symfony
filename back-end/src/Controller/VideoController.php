@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Course;
 use App\Entity\Video;
 use App\Output\ListOutput;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/video')]
+#[ApiResource]
 final class VideoController extends AbstractController
 {
     private VideoRepository $videoRepository;

@@ -10,17 +10,14 @@ use App\Repository\DocumentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DocumentRepository::class)]
-class DetailedCourseOutput
+class DetailedCourseOutput extends CourseOutput
 {
-    public int $id;
-    public string $name;
     public ListOutput $videos;
     public ListOutput $documents;
 
     public function __construct(Course $course)
     {
-        $this->id = $course->getId();
-        $this->name = $course->getName();
+        parent::__construct($course);
         $this->videos = new ListOutput($course->getVideos(), VideoOutput::class);
         $this->documents = new ListOutput($course->getDocuments(), DocumentOutput::class);
     }

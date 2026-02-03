@@ -66,6 +66,6 @@ final class VideoController extends AbstractController
 
         $this->videoRepository->save($newVideo, true);
 
-        return $this->json(['message' => 'Video uploaded'], Response::HTTP_NOT_IMPLEMENTED);
+        return $this->json(['message' => 'Video uploaded']);
     }
 }

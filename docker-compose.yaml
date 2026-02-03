@@ -6,7 +6,7 @@ services:
       - "8000:8000"
     volumes:
       - ./back-end:/var/www/html
-    command: php -S 0.0.0.0:8000 -t public
+    command: symfony serve
 
   frontend:
     build: ./front-end

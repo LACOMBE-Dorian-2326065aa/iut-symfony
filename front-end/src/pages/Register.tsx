@@ -23,8 +23,8 @@ const Register = () => {
                 email,
                 password,
                 firstname,
-                lastname,
-                roles: role === 'professor' ? ['ROLE_TEACHER', 'ROLE_USER'] : ['ROLE_USER']
+                name: lastname,
+                roles: role === 'professor' ? ['ROLE_TEACHER'] : ['ROLE_STUDENT']
             });
             navigate('/login');
         } catch (err) {
@@ -41,7 +41,6 @@ const Register = () => {
         <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
             <div className="max-w-md w-full group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
                 
-                {/* Header avec dégradé dynamique */}
                 <div className={`h-32 bg-gradient-to-r ${isStudent ? "from-blue-500 to-indigo-600" : "from-red-500 to-rose-600"} relative overflow-hidden flex items-center justify-center`}>
                     <div className="absolute inset-0 bg-white/10 transition-colors"></div>
                     {isStudent ? (
@@ -55,7 +54,6 @@ const Register = () => {
                 </div>
 
                 <div className="p-8">
-                    {/* Sélecteur de Rôle */}
                     <div className="flex p-1 bg-gray-50 rounded-xl mb-8 border border-gray-100">
                         <button
                             type="button"

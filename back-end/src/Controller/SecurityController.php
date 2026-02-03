@@ -67,7 +67,6 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    // route pour s'inscrire
     #[Route(path: '/api/register', name: 'register_user', methods: ['POST'])]
     public function apiRegister(
         Request $request,
@@ -85,10 +84,10 @@ class SecurityController extends AbstractController
             return new JsonResponse(['error' => 'All fields are required'], 400);
         }
 
-        $existingUser = $this->userProvider->loadUserByIdentifier($email);
+        $existingUser = $userRepository->findOneBy(['email' => $email]);
 
         if ($existingUser) {
-            return new JsonResponse(['error' => 'Email already in use'], 409);
+            return new JsonResponse(['error' => 'Email already in use'], 400);
         }
 
         $user = new User();

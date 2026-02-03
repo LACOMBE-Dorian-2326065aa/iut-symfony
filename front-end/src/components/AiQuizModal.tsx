@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import api from '../api/axios';
 import type { Document } from '../types';
-import { X, Sparkles, Loader, Copy, Check } from 'lucide-react';
+import { X, Sparkles, Loader, Copy, Check, Save } from 'lucide-react';
 
 interface AiQuizModalProps {
     document: Document;
@@ -26,6 +26,8 @@ export default function AiQuizModal({ document, courseId, courseName, isOpen, on
     const [questionCount, setQuestionCount] = useState(5);
     const [answersPerQuestion, setAnswersPerQuestion] = useState(4);
     const [copied, setCopied] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
 
     if (!isOpen) return null;
 
@@ -58,6 +60,31 @@ export default function AiQuizModal({ document, courseId, courseName, isOpen, on
             navigator.clipboard.writeText(JSON.stringify(quizData, null, 2));
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
+    const handleSaveQuiz = async () => {
+        if (!quizData) return;
+        
+        setSaving(true);
+        setError(null);
+        
+        try {
+            await api.post('/api/quizz/create', {
+                name: quizData.name,
+                questions: quizData.questions,
+                courseId: courseId
+            });
+            
+            setSaved(true);
+            setTimeout(() => {
+                onClose();
+            }, 1500);
+        } catch (err) {
+            console.error(err);
+            setError('Erreur lors de la sauvegarde du quiz dans la base de données');
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -155,6 +182,18 @@ export default function AiQuizModal({ document, courseId, courseName, isOpen, on
                                 ✅ QCM généré avec succès !
                             </div>
 
+                            {saved && (
+                                <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg">
+                                    💾 Quiz sauvegardé dans la base de données !
+                                </div>
+                            )}
+
+                            {error && (
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                                    {error}
+                                </div>
+                            )}
+
                             <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                                 <div className="flex justify-between items-center">
                                     <h3 className="font-bold text-gray-900">{quizData.name}</h3>
@@ -212,10 +251,34 @@ export default function AiQuizModal({ document, courseId, courseName, isOpen, on
                                     onClick={() => {
                                         setQuizData(null);
                                         setError(null);
+                                        setSaved(false);
                                     }}
                                     className="flex-1 bg-gray-200 text-gray-900 font-bold py-2 rounded-lg hover:bg-gray-300 transition"
+                                    disabled={saving || saved}
                                 >
                                     Régénérer
+                                </button>
+                                <button
+                                    onClick={handleSaveQuiz}
+                                    disabled={saving || saved}
+                                    className="flex-1 bg-green-600 text-white font-bold py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {saving ? (
+                                        <>
+                                            <Loader size={18} className="animate-spin" />
+                                            Sauvegarde...
+                                        </>
+                                    ) : saved ? (
+                                        <>
+                                            <Check size={18} />
+                                            Sauvegardé
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Save size={18} />
+                                            Sauvegarder
+                                        </>
+                                    )}
                                 </button>
                                 <button
                                     onClick={onClose}

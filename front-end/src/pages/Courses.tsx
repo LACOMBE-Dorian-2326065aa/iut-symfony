@@ -69,6 +69,7 @@ const VideoCard = ({ video }: { video: Video }) => (
 const Courses = () => {
     const { user } = useAuth();
     const [courses, setCourses] = useState<Course[]>([]);
+    const [myCourses, setMyCourses] = useState<Course[]>([]);
     const [videos, setVideos] = useState<Video[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -86,12 +87,22 @@ const Courses = () => {
 
     const fetchData = async () => {
         try {
-            const [coursesRes, videosRes] = await Promise.all([
+            const promises: Promise<any>[] = [
                 api.get<ApiResponse<Course>>('/api/course'),
                 api.get<ApiResponse<Video>>('/api/video')
-            ]);
-            setCourses(coursesRes.data.items || []);
-            setVideos(videosRes.data.items || []);
+            ];
+
+            if (isTeacher && user?.id) {
+                promises.push(api.get<ApiResponse<Course>>(`/api/course/user/${user.id}`));
+            }
+
+            const results = await Promise.all(promises);
+            setCourses(results[0].data.items || []);
+            setVideos(results[1].data.items || []);
+            
+            if (isTeacher && user?.id && results[2]) {
+                 setMyCourses(results[2].data.items || []);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -101,7 +112,7 @@ const Courses = () => {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [user?.id]);
 
     const handleCreateCourse = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -109,7 +120,10 @@ const Courses = () => {
 
         try {
             // 1. Create Course
-            const res = await api.post<Course>('/api/courses', { name: courseName });
+            const res = await api.post<Course>('/api/courses', { 
+                name: courseName,
+                user: user?.id ? `/api/users/${user.id}` : undefined
+            });
             const newCourse = res.data;
 
             // 2. Upload Video if exists
@@ -259,13 +273,36 @@ const Courses = () => {
                     )}
                 </div>
             )}
+            
+            {isTeacher && myCourses.length > 0 && (
+                <section>
+                <div className="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl mb-2">
+                            Mes Cours
+                        </h2>
+                        <p className="text-lg text-gray-500">Gérez vos contenus pédagogiques</p>
+                    </div>
+                    <div className="bg-indigo-100 text-indigo-800 text-sm font-semibold px-4 py-1.5 rounded-full">
+                        {myCourses.length} cours créés
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {myCourses.map(course => (
+                        <CourseCard key={course.id} course={course} />
+                    ))}
+                </div>
+            </section>
+            )}
+
             {/* Section Cours */}
             <section>
                 <div className="flex justify-between items-end mb-8">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl mb-2">
+                        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl mb-2">
                             Catalogue des Cours
-                        </h1>
+                        </h2>
                         <p className="text-lg text-gray-500">Explorez nos ressources pédagogiques</p>
                     </div>
                     <div className="bg-blue-100 text-blue-800 text-sm font-semibold px-4 py-1.5 rounded-full">

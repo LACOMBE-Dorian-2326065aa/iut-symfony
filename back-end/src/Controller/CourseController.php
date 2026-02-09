@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\User;
 use App\Output\Course\CourseOutput;
 use App\Output\Course\DetailedCourseOutput;
 use App\Output\ListOutput;
@@ -42,6 +43,16 @@ final class CourseController extends AbstractController
 
         return $this->json(
             new DetailedCourseOutput($course)
+        );
+    }
+
+    #[Route('/user/{user}', name: 'course_by_user')]
+    public function getCourseByUser(User $user): Response
+    {
+        $courses = $this->courseRepository->findBy(['user' => $user]);
+
+        return $this->json(
+            new ListOutput($courses, CourseOutput::class)
         );
     }
 }

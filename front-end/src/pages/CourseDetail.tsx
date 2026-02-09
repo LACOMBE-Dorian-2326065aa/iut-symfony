@@ -6,7 +6,10 @@ import type { DetailedCourse, Video, Document } from '../types';
 import { BookOpen, Video as VideoIcon, FileText, Play, Clock, File, User as UserIcon, Sparkles, Plus, X, Trash2 } from 'lucide-react';
 import AiQuizModal from '../components/AiQuizModal';
 
-const VideoCard = ({ video, isTeacher, onDelete }: { video: Video; isTeacher: boolean; onDelete: (id: number) => void }) => (
+const VideoCard = ({ video, isTeacher, onDelete }: { video: Video; isTeacher: boolean; onDelete: (id: number) => void }) => {
+    const { id: courseId } = useParams<{ id: string }>();
+    
+    return (
     <div className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full hover:-translate-y-1">
         <div className="h-32 bg-gradient-to-r from-red-500 to-rose-600 relative overflow-hidden">
              <div className="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors"></div>
@@ -25,7 +28,7 @@ const VideoCard = ({ video, isTeacher, onDelete }: { video: Video; isTeacher: bo
                 </div>
 
                 <a 
-                    href={video.path} 
+                    href={`http://localhost:8000/uploads/${courseId}/${video.path}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block w-full text-center py-2.5 px-4 bg-gray-50 hover:bg-red-600 text-gray-700 hover:text-white rounded-lg font-medium transition-all duration-200"
@@ -44,7 +47,8 @@ const VideoCard = ({ video, isTeacher, onDelete }: { video: Video; isTeacher: bo
             </div>
         </div>
     </div>
-);
+    );
+};
 
 const DocumentCard = ({ document, onGenerateQuiz, isTeacher, onDelete }: { document: Document; onGenerateQuiz: (document: Document) => void; isTeacher: boolean; onDelete: (id: number) => void }) => {
     const { id: courseId } = useParams<{ id: string }>();

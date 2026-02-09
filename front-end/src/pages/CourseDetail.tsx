@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import type { DetailedCourse, Video, Document } from '../types';
-import { BookOpen, Video as VideoIcon, FileText, Play, Clock, File, User as UserIcon, Sparkles, Plus, X, Trash2 } from 'lucide-react';
+import type { DetailedCourse, Video, Document, Quizz } from '../types';
+import { BookOpen, Video as VideoIcon, FileText, Play, Clock, File, User as UserIcon, Sparkles, Plus, X, Trash2, ClipboardList, Award } from 'lucide-react';
 import AiQuizModal from '../components/AiQuizModal';
 
 const VideoCard = ({ video, isTeacher, onDelete }: { video: Video; isTeacher: boolean; onDelete: (id: number) => void }) => {
@@ -110,6 +110,37 @@ const DocumentCard = ({ document, onGenerateQuiz, isTeacher, onDelete }: { docum
             </div>
         </div>
     </div>
+    );
+};
+
+const QuizCard = ({ quiz, courseId }: { quiz: Quizz; courseId: number }) => {
+    return (
+        <Link 
+            to={`/quiz/${quiz.id}`}
+            className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full hover:-translate-y-1"
+        >
+            <div className="h-32 bg-gradient-to-r from-blue-500 to-indigo-600 relative overflow-hidden">
+                <div className="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors"></div>
+                <ClipboardList className="absolute bottom-4 right-4 text-white/20 w-16 h-16 transform group-hover:scale-110 transition-transform duration-300" />
+            </div>
+            
+            <div className="p-6 flex-1 flex flex-col">
+                <h3 className="text-xl font-bold text-gray-800 leading-tight group-hover:text-blue-600 transition-colors mb-3">
+                    {quiz.name}
+                </h3>
+                
+                <div className="mt-auto space-y-4">
+                    <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-md w-fit">
+                        <Award size={14} className="text-gray-400" />
+                        <span className="text-xs text-gray-500 font-medium">QCM disponible</span>
+                    </div>
+
+                    <div className="w-full text-center py-2.5 px-4 bg-blue-600 group-hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200">
+                        Passer le QCM
+                    </div>
+                </div>
+            </div>
+        </Link>
     );
 };
 
@@ -397,16 +428,31 @@ const CourseDetail = () => {
                 )}
             </section>
 
-             <div className="flex justify-center pt-6 border-t">
-                {course.quizzs.items.length > 0 && (
-                    <Link 
-                        to={`/quiz/${course.quizzs.items[0].id}`} 
-                        className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-blue-700 shadow-lg transform hover:scale-105 transition flex items-center gap-2"
-                    >
-                        Passer le QCM
-                    </Link>
+            {/* Section QCM */}
+            <section>
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <ClipboardList className="text-blue-500" /> QCM disponibles
+                </h2>
+                {course.quizzs.items.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {course.quizzs.items.map((quiz) => (
+                            <QuizCard 
+                                key={quiz.id} 
+                                quiz={quiz} 
+                                courseId={course.id}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
+                        <ClipboardList className="w-16 h-16 text-blue-300 mx-auto mb-4" />
+                        <p className="text-gray-600 mb-2 font-medium">Aucun QCM disponible pour ce cours</p>
+                        {isTeacher && (
+                            <p className="text-sm text-gray-500">Générez un QCM à partir d'un document en cliquant sur "Générer un QCM"</p>
+                        )}
+                    </div>
                 )}
-            </div>
+            </section>
 
             {selectedDocument && (
                 <AiQuizModal 

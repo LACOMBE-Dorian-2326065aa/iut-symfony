@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Course;
 use App\Entity\Question;
 use App\Entity\Quizz;
 use App\Output\ListOutput;
 use App\Output\Quizz\DetailedQuizzOutput;
+use App\Output\Quizz\QuizzOutput;
 use App\Repository\CourseRepository;
 use App\Repository\QuestionRepository;
 use App\Repository\QuizzRepository;
@@ -61,6 +63,16 @@ final class QuizzController extends AbstractController
         return $this->json(
             new DetailedQuizzOutput($quizz),
             Response::HTTP_CREATED
+        );
+    }
+
+    #[Route('/course/{course}', name: 'quizz_by_course', methods: ['GET'])]
+    public function getQuizzByCourse(Course $course): Response
+    {
+        $quizzs = $course->getQuizzs();
+
+        return $this->json(
+            new ListOutput($quizzs, QuizzOutput::class)
         );
     }
 }

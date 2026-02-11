@@ -115,12 +115,15 @@ final class AiController extends AbstractController
 
         $model = (string) ($payload['model'] ?? 'mistral-small-latest');
         $temperature = (float) ($payload['temperature'] ?? 0.2);
-        $maxTokens = (int) ($payload['max_tokens'] ?? 700);
-        $quizTitle = trim((string) ($payload['title'] ?? 'Quiz'));
         $questionCount = (int) ($payload['question_count'] ?? 5);
         $answersPerQuestion = (int) ($payload['answers_per_question'] ?? 4);
         $questionCount = $questionCount > 0 ? $questionCount : 5;
         $answersPerQuestion = $answersPerQuestion > 1 ? $answersPerQuestion : 4;
+        
+        // Calculate dynamic max tokens based on question count (approximately 100 tokens per question)
+        $calculatedMaxTokens = max(700, $questionCount * 100 + 200);
+        $maxTokens = (int) ($payload['max_tokens'] ?? $calculatedMaxTokens);
+        $quizTitle = trim((string) ($payload['title'] ?? 'Quiz'));
 
         $systemPrompt = <<<PROMPT
 Tu es un générateur de quiz QCM au format JSON.

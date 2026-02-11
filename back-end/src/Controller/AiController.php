@@ -200,24 +200,18 @@ PROMPT;
             $assistantJson = json_decode($assistantMessage, true);
         }
         
-        $responsePayload = [
-            'model' => $model,
-            'input' => [
-                'title' => $quizTitle,
-                'question_count' => $questionCount,
-                'answers_per_question' => $answersPerQuestion,
-            ],
-            'usage' => $responseContent['usage'] ?? null,
-        ];
-
+        // Validate that we have proper quiz data
         if (json_last_error() === JSON_ERROR_NONE && is_array($assistantJson) && !empty($assistantJson)) {
-            $responsePayload['data'] = $assistantJson;
-        } else {
-            $responsePayload['data'] = null;
-            $responsePayload['raw'] = $assistantMessage;
-            $responsePayload['json_error'] = json_last_error_msg();
+            // Ensure the required fields are present
+            if (isset($assistantJson['name']) && isset($assistantJson['questions']) && is_array($assistantJson['questions'])) {
+                $responsePayload = [
+                    'data' => $assistantJson,
+                ];
+                return $responsePayload;
+            }
         }
-
-        return $responsePayload;
+        
+        // If we reach here, JSON parsing or validation failed
+        throw new \RuntimeException('Failed to parse quiz data from AI response: ' . json_last_error_msg() . ' | Raw: ' . substr($assistantMessage, 0, 500));
     }
 }

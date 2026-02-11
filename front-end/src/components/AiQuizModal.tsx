@@ -40,14 +40,16 @@ export default function AiQuizModal({ document, courseId, courseName, isOpen, on
                 question_count: questionCount,
             });
             const data = res.data?.data as QuizData | null;
-            if (data) {
+            if (data && data.name && data.questions) {
                 setQuizData(data);
             } else {
-                setError('Format de réponse invalide de l\'IA');
+                const errorMsg = res.data?.error || res.data?.json_error || 'Format de réponse invalide de l\'IA';
+                setError(`Erreur: ${errorMsg}`);
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            setError('Erreur lors de la génération du QCM. Vérifiez que le PDF contient du texte.');
+            const errorMessage = err?.response?.data?.error || err?.response?.data?.details || 'Erreur lors de la génération du QCM. Vérifiez que le PDF contient du texte.';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
